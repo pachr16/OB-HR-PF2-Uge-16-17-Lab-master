@@ -5,8 +5,6 @@ using System.Threading;
 
 public class ArduinoMain : MonoBehaviour
 {
-    public Breadboard breadboard;
-    public Servo servo;
     //On included/premade Arduino functions:
     //delay(timeInMilliseconds) : use "yield return delay(timeInMilliseconds)", to get similar functionality as delay() in arduino would give you.
 
@@ -19,11 +17,7 @@ public class ArduinoMain : MonoBehaviour
 
     //analogWrite() and analogRead() works as they do in arduino - remember to give them correct input-values.
     //digitalRead() and digitalWrite() writes and returns bools. (High = true). 
-    //LineSensors have both write-functions implemented, motors/hbridge have both read-functions implemented.
     //The console will display a "NotImplementedException" if you attempt to write to sensors or read from motors. 
-
-
-    //Additions from 21-04-2020:
 
     //Distance sensor:
     //The Distance (ultrasonic) sensor is added, if you use "pulseIn()" on the pin it is assigned to, 
@@ -40,12 +34,17 @@ public class ArduinoMain : MonoBehaviour
     //In order to attach something to the servo, so that it rotates with the servo-arm, simply make the object you wish to rotate, a child of either: Servo-rotationCenter or Servo-arm. 
     //Make sure to take into account the position of the object relative to Servo-rotationCenter. The rotated object will rotate positively around the Y-axis (up) of the Servo-rotationCenter gameobject.
 
+    public Breadboard breadboard;
+    public Servo servo;
 
-
+    private int ldrLeft = 0, ldrRight = 1;
+    private int forwardRight = 2, forwardLeft = 3;
+    private int backRight = 4, backLeft = 5;
+    private int distanceSensor = 6;
 
     IEnumerator setup()
     {
-        //Your code goes here:
+
 
         //Example of delay:
         Debug.Log("pre-delay log");
@@ -60,7 +59,10 @@ public class ArduinoMain : MonoBehaviour
 
     IEnumerator loop()
     {
-        //Your code goes here:
+        Debug.Log("Reading ldr left: " + analogRead(ldrLeft));
+        Debug.Log("Reading ldr right: " + analogRead(ldrRight));
+
+        turnLeft();
 
 
         //Following region is implemented as to allow "yield return delay()" to function the same way as one would expect it to on Arduino.
@@ -72,6 +74,31 @@ public class ArduinoMain : MonoBehaviour
         yield return loop();
         #endregion DoNotDelete 
     }
+
+
+    void turnLeft() {
+        analogWrite(forwardLeft, 0);   // denne er ikke nødvendig hvis vi i stedet kalder stopAll før vi begynder at dreje
+        analogWrite(forwardRight, 50);
+    }
+
+    void turnRight() {
+        analogWrite(forwardRight, 0);   // denne er ikke nødvendig hvis vi i stedet kalder stopAll før vi begynder at dreje
+        analogWrite(forwardLeft, 50);
+    }
+
+    void driveForwards() {
+        analogWrite(forwardRight, 50);
+        analogWrite(forwardLeft, 50);
+    }
+
+    void stopAll() {
+        analogWrite(forwardRight, 0);
+        analogWrite(forwardLeft, 0);
+        analogWrite(backRight, 0);
+        analogWrite(backLeft, 0);
+    }
+
+
 
 
 

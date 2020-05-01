@@ -124,7 +124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2250844245689987425}
   m_Layer: 8
-  m_Name: Robot root Copy
+  m_Name: SmartMobilen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -580,7 +580,7 @@ PrefabInstance:
     - target: {fileID: 5804117980960619088, guid: 80509a3c0e993c74a95d645741394edf,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5804117980960619088, guid: 80509a3c0e993c74a95d645741394edf,
         type: 3}
