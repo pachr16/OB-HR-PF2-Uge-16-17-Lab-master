@@ -41,7 +41,6 @@ public class ArduinoMain : MonoBehaviour {
     private int backRight = 4, backLeft = 5;
     private int distanceSensor = 6;
     private string state = "LineFollower";
-    bool leftOverLine = false, rightOverLine = false;
 
     IEnumerator setup () {
         servo.write (90);
@@ -68,34 +67,34 @@ public class ArduinoMain : MonoBehaviour {
                 yield return delay (1200); // enough delay to turn ~89-91 degrees, with some uncertainty due to Unity
                 stopAll ();
 
-                servo.write(88);
-                yield return delay(2000);
-                if  (pulseIn(distanceSensor) < 1500) {
-                    Debug.Log("Changing state to WallAvoider!");
+                servo.write (88);
+                yield return delay (2000);
+                if (pulseIn (distanceSensor) < 1500) {
+                    Debug.Log ("Changing state to WallAvoider!");
                     state = "WallAvoider";
-                    yield return delay(1000);
+                    yield return delay (1000);
                 }
 
                 if (state == "LineFollower") {
-                servo.write (180);
-                yield return delay (2000);
-                while (pulseIn (distanceSensor) == 0) {
-                    analogWrite (forwardRight, 50);
-                    analogWrite (forwardLeft, 50);
-                    yield return delay (100);
-                }
-                stopAll ();
-
-                while (pulseIn (distanceSensor) < 1000) {
-                    analogWrite (forwardLeft, 50);
-                    analogWrite (forwardRight, 20);
-                    yield return delay (10);
-
-                    if (analogRead (ldrRight) < 100 || analogRead (ldrLeft) < 100) {
-                        break;
+                    servo.write (180);
+                    yield return delay (2000);
+                    while (pulseIn (distanceSensor) == 0) {
+                        analogWrite (forwardRight, 50);
+                        analogWrite (forwardLeft, 50);
+                        yield return delay (100);
                     }
-                }
-                stopAll ();
+                    stopAll ();
+
+                    while (pulseIn (distanceSensor) < 1000) {
+                        analogWrite (forwardLeft, 50);
+                        analogWrite (forwardRight, 20);
+                        yield return delay (10);
+
+                        if (analogRead (ldrRight) < 100 || analogRead (ldrLeft) < 100) {
+                            break;
+                        }
+                    }
+                    stopAll ();
                 }
 
             } else {
@@ -111,9 +110,32 @@ public class ArduinoMain : MonoBehaviour {
 
         } else if (state == "TESTING") {
 
-        } else {
-            Debug.Log("We are now in WallAvoider state!");
-            yield return delay(10000);
+        } else { // this is when we go to WallAvoider state
+            Debug.Log ("We are now in WallAvoider state!");
+
+            if (servo.read () != 179) {
+                servo.write(90);
+                yield return delay(250);
+                while (pulseIn(distanceSensor) > 700) {
+                    driveForwards();
+                    yield return delay(10);
+                }
+                turnLeft();
+                yield return delay(500);
+                stopAll();
+                servo.write (180);
+                yield return delay (2000);
+            }
+
+            Debug.Log("We are " + pulseIn (distanceSensor) + " away from the right wall!");
+            if (pulseIn (distanceSensor) > 600 || pulseIn (distanceSensor) == 0) {
+                turnRight ();
+            } else if (pulseIn (distanceSensor) < 500) {
+                turnLeft ();
+            } else {
+                driveForwards ();
+            }
+            yield return delay (10);
         }
 
         //Following region is implemented as to allow "yield return delay()" to function the same way as one would expect it to on Arduino.
@@ -141,19 +163,25 @@ public class ArduinoMain : MonoBehaviour {
     }
 
     void turnLeft () {
-        servo.write (45);
+        if (state == "LineFollower") {
+            servo.write (45);
+        }
         analogWrite (forwardLeft, 0); // denne er ikke nødvendig hvis vi i stedet kalder stopAll før vi begynder at dreje
         analogWrite (forwardRight, 50);
     }
 
     void turnRight () {
-        servo.write (135);
+        if (state == "LineFollower") {
+            servo.write (135);
+        }
         analogWrite (forwardRight, 0); // denne er ikke nødvendig hvis vi i stedet kalder stopAll før vi begynder at dreje
         analogWrite (forwardLeft, 50);
     }
 
     void driveForwards () {
-        servo.write (90);
+        if (state == "LineFollower") {
+            servo.write (90);
+        }
         analogWrite (forwardRight, 50);
         analogWrite (forwardLeft, 50);
     }
